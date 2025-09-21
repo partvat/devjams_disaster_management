@@ -1,0 +1,437 @@
+[
+  {
+    "title": "Green earthquake alert (Magnitude 5.5M, Depth:24.684km) in United States 21/09/2025 09:30 UTC, [unknown].",
+    "lat": "51.2146",
+    "lon": "-178.0975"
+  },
+  {
+    "title": "Green earthquake alert (Magnitude 5.7M, Depth:10km) in Russia 21/09/2025 01:13 UTC, 230 thousand in MMI&>=III.",
+    "lat": "52.7951",
+    "lon": "161.1393"
+  },
+  {
+    "title": "Green earthquake alert (Magnitude 5.9M, Depth:10km) in Russia 19/09/2025 15:45 UTC, 210 thousand in MMI&>=III.",
+    "lat": "52.9359",
+    "lon": "161.2812"
+  },
+  {
+    "title": "Green earthquake alert (Magnitude 5.9M, Depth:84.495km) in Russian Federation 19/09/2025 14:55 UTC, 4 thousand in MMI IV.",
+    "lat": "51.422",
+    "lon": "157.7944"
+  },
+  {
+    "title": "Green earthquake alert (Magnitude 5.5M, Depth:10km) in Russia 19/09/2025 13:27 UTC, 240 thousand in MMI&>=III.",
+    "lat": "52.2396",
+    "lon": "160.6455"
+  },
+  {
+    "title": "Green earthquake alert (Magnitude 5.5M, Depth:93.77km) in Chile 19/09/2025 04:55 UTC, 200 thousand in MMI V.",
+    "lat": "-20.2187",
+    "lon": "-69.2907"
+  },
+  {
+    "title": "Green earthquake alert (Magnitude 5.7M, Depth:30.442km) in Russia 18/09/2025 21:37 UTC, 250 thousand in MMI&>=III.",
+    "lat": "52.8841",
+    "lon": "160.6741"
+  },
+  {
+    "title": "Green earthquake alert (Magnitude 5.6M, Depth:10km) in Russia 18/09/2025 21:36 UTC, 200 thousand in MMI&>=III.",
+    "lat": "52.3269",
+    "lon": "160.7187"
+  },
+  {
+    "title": "Green earthquake alert (Magnitude 5.6M, Depth:10km) in Russia 18/09/2025 20:17 UTC, 240 thousand in MMI&>=III.",
+    "lat": "52.8557",
+    "lon": "160.7949"
+  },
+  {
+    "title": "Green earthquake alert (Magnitude 5.6M, Depth:10km) in Russia 18/09/2025 20:03 UTC, 250 thousand in MMI&>=III.",
+    "lat": "52.4717",
+    "lon": "160.5695"
+  },
+  {
+    "title": "Green earthquake alert (Magnitude 5.5M, Depth:10km) in Russia 18/09/2025 19:26 UTC, 250 thousand in MMI&>=III.",
+    "lat": "52.745",
+    "lon": "161.0581"
+  },
+  {
+    "title": "Green earthquake alert (Magnitude 5.8M, Depth:10km) in Russia 18/09/2025 19:08 UTC, 260 thousand in MMI&>=III.",
+    "lat": "52.9725",
+    "lon": "160.9648"
+  },
+  {
+    "title": "Orange earthquake alert (Magnitude 7.8M, Depth:19.5km) in Russia 18/09/2025 18:58 UTC, 1 thousand (in MMI>=VII).",
+    "lat": "53.1928",
+    "lon": "160.5129"
+  },
+  {
+    "title": "Green earthquake alert (Magnitude 6.1M, Depth:10km) in Indonesia 18/09/2025 18:19 UTC, 20 thousand (in MMI>=VII).",
+    "lat": "-3.6145",
+    "lon": "135.5258"
+  },
+  {
+    "title": "Red alert for tropical cyclone RAGASA-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 10.978 million .",
+    "lat": "18.3",
+    "lon": "126.3"
+  },
+  {
+    "title": "Green alert for tropical cyclone NEOGURI-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (0 in Tropical Storm).",
+    "lat": "27.7",
+    "lon": "151.8"
+  },
+  {
+    "title": "Green flood alert in Bangladesh",
+    "lat": "25.093484749999998",
+    "lon": "90.0978252395603"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-18.638777714506642",
+    "lon": "122.37743621408517"
+  },
+  {
+    "title": "Green forest fire alert in Botswana",
+    "lat": "-18.535860076018089",
+    "lon": "21.534081487658231"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-16.829520060097948",
+    "lon": "130.574957785041"
+  },
+  {
+    "title": "Green alert for tropical cyclone GABRIELLE-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (0 in Tropical Storm).",
+    "lat": "27.2",
+    "lon": "-60"
+  },
+  {
+    "title": "Green flood alert in Honduras",
+    "lat": "14.1386319",
+    "lon": "-87.2814139"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-16.346053317797377",
+    "lon": "126.03438356562992"
+  },
+  {
+    "title": "Green alert for tropical cyclone MITAG-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (0 in Tropical Storm).",
+    "lat": "22.8",
+    "lon": "115.4"
+  },
+  {
+    "title": "Green flood alert in Slovenia",
+    "lat": "45.8040475",
+    "lon": "15.1696684"
+  },
+  {
+    "title": "Green flood alert in Yemen",
+    "lat": "15.5986243",
+    "lon": "45.2598934"
+  },
+  {
+    "title": "Green forest fire alert in United States",
+    "lat": "47.598946639519667",
+    "lon": "-123.36676672774189"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-14.735420390337389",
+    "lon": "131.93027013429781"
+  },
+  {
+    "title": "Green flood alert in Thailand",
+    "lat": "14.3189468",
+    "lon": "100.5111681"
+  },
+  {
+    "title": "Green forest fire alert in Zambia",
+    "lat": "-10.97694098690406",
+    "lon": "31.697964440022098"
+  },
+  {
+    "title": "Green forest fire alert in Botswana",
+    "lat": "-20.092776528837746",
+    "lon": "23.278822772553706"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-18.104587132100008",
+    "lon": "123.81809733118509"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-5.7933051253687351",
+    "lon": "-45.919287192788651"
+  },
+  {
+    "title": "Green forest fire alert in Angola, Namibia",
+    "lat": "-17.34118645561875",
+    "lon": "16.622956664847"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-18.427429254143561",
+    "lon": "122.57247213110996"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-18.500469993000479",
+    "lon": "122.42552110356907"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-12.697496496173773",
+    "lon": "-47.736270778144394"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-18.117217395978621",
+    "lon": "123.6679462279192"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-13.941588386503678",
+    "lon": "-44.868455870564091"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-8.6343444965308738",
+    "lon": "-46.38244145489459"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-8.90376882874653",
+    "lon": "-45.480428115313273"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-6.6532120861270805",
+    "lon": "-45.5533048084164"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-9.07311160770303",
+    "lon": "-44.85946653406387"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-13.012757890360625",
+    "lon": "141.82417881148658"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-15.484862887519144",
+    "lon": "126.91478108299727"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-16.539676355503317",
+    "lon": "125.94326320314005"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-12.183358524148771",
+    "lon": "135.31872963481004"
+  },
+  {
+    "title": "Green forest fire alert in Mozambique",
+    "lat": "-18.798734150107119",
+    "lon": "33.94575612000714"
+  },
+  {
+    "title": "Green alert for tropical cyclone MARIO-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (0 in Tropical Storm).",
+    "lat": "23.7",
+    "lon": "-118.3"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-11.692773151978665",
+    "lon": "-46.583681473640652"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-15.553033713844515",
+    "lon": "126.93889463818996"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-7.533416695688798",
+    "lon": "-44.3699792352936"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-8.94817847944797",
+    "lon": "-46.170792333013985"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-9.0047432398651512",
+    "lon": "-45.784294610379654"
+  },
+  {
+    "title": "Green forest fire alert in Botswana",
+    "lat": "-18.964967614627909",
+    "lon": "22.146889874848796"
+  },
+  {
+    "title": "Green forest fire alert in Angola",
+    "lat": "-7.8337466699962439",
+    "lon": "15.066816231021845"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-12.317676610428661",
+    "lon": "135.36188959778562"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-12.094586438667962",
+    "lon": "-47.579927039256177"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-16.001387325828922",
+    "lon": "136.46598456670318"
+  },
+  {
+    "title": "Green flood alert in Indonesia",
+    "lat": "0.0693794",
+    "lon": "117.444213758653"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-9.0577468558734449",
+    "lon": "-47.075777751770218"
+  },
+  {
+    "title": "Green flood alert in Philippines",
+    "lat": "7.90512206414308",
+    "lon": "125.015791362833"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-12.116791299601637",
+    "lon": "-44.851504817661557"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-11.144181471374322",
+    "lon": "-45.3010430812799"
+  },
+  {
+    "title": "Green forest fire alert in Brazil",
+    "lat": "-14.460066034754224",
+    "lon": "-47.338895811977508"
+  },
+  {
+    "title": "Green forest fire alert in Australia",
+    "lat": "-12.199790088480256",
+    "lon": "134.7306755077413"
+  },
+  {
+    "title": "Green flood alert in Nigeria",
+    "lat": "12.0347801",
+    "lon": "13.9187379"
+  },
+  {
+    "title": "Green flood alert in India",
+    "lat": "18.9918442",
+    "lon": "75.9097839980971"
+  },
+  {
+    "title": "Green flood alert in Mexico",
+    "lat": "20.48187375",
+    "lon": "-103.400509663829"
+  },
+  {
+    "title": "Orange flood alert in South Sudan",
+    "lat": "9",
+    "lon": "33"
+  },
+  {
+    "title": "Drought is on going in Democratic Republic of Congo, Central African Republic, Eritrea, Ethiopia, Sudan, South Sudan",
+    "lat": "7.955",
+    "lon": "29.77"
+  },
+  {
+    "title": "Drought is on going in China, Kazakhstan, Mongolia, Russia",
+    "lat": "48.553",
+    "lon": "91.696"
+  },
+  {
+    "title": "Drought is on going in Mongolia",
+    "lat": "48.829",
+    "lon": "104.162"
+  },
+  {
+    "title": "Drought is on going in United States",
+    "lat": "46.491",
+    "lon": "-117.191"
+  },
+  {
+    "title": "Drought is on going in Ethiopia, Somalia",
+    "lat": "1.747",
+    "lon": "43.385"
+  },
+  {
+    "title": "Drought is on going in The Bahamas, Cuba, Mexico",
+    "lat": "18.449",
+    "lon": "-93.15"
+  },
+  {
+    "title": "Drought is on going in Canada",
+    "lat": "54.348",
+    "lon": "-110.282"
+  },
+  {
+    "title": "Drought is on going in Mexico, United States",
+    "lat": "32.631",
+    "lon": "-110.834"
+  },
+  {
+    "title": "Drought is on going in Bhutan, China, India, Nepal",
+    "lat": "27.507",
+    "lon": "88.368"
+  },
+  {
+    "title": "Drought is on going in Australia",
+    "lat": "-33.654",
+    "lon": "138.556"
+  },
+  {
+    "title": "Drought is on going in Armenia, Azerbaijan, China, Islamic Republic of Iran, Kyrgyzstan, Kazakhstan, Syria, Tajikistan, Turkmenistan, Türkiye, Uzbekistan",
+    "lat": "41.236",
+    "lon": "60.141"
+  },
+  {
+    "title": "Drought is on going in China",
+    "lat": "31.827",
+    "lon": "108.032"
+  },
+  {
+    "title": "Drought is on going in Bulgaria, Georgia, Moldova, Romania, Russia, Türkiye, Ukraine",
+    "lat": "47.017",
+    "lon": "34.863"
+  },
+  {
+    "title": "Drought is on going in Burkina Faso, Benin, Cote d'Ivoire, Ghana, Nigeria, Togo",
+    "lat": "8.041",
+    "lon": "6.42"
+  },
+  {
+    "title": "Drought is on going in Madagascar",
+    "lat": "-15.092",
+    "lon": "48.9"
+  },
+  {
+    "title": "Drought is on going in Bosnia & Herzegovina, Belgium, Bulgaria, Germany, Finland, France, Greece, Croatia, Hungary, Montenegro, The Republic of North Macedonia, Netherlands, Norway, Romania, Serbia, Sweden, Slovakia, Ukraine,",
+    "lat": "47.151",
+    "lon": "16.085"
+  },
+  {
+    "title": "Drought is on going in Bolivia, Brazil",
+    "lat": "-7.704",
+    "lon": "-54.524"
+  }
+]

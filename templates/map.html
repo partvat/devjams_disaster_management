@@ -7,11 +7,29 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    /* Make the map fill the full browser window */
     html, body, #map {
       height: 100%;
       margin: 0;
       padding: 0;
+    }
+
+    /* Blinking red circle for To Be Rescued users */
+    .red-circle {
+      width: 20px;
+      height: 20px;
+      background-color: #FF2C2C !important; /* enforce exact red */
+      border-radius: 50%;
+      box-shadow: 0 0 6px #FF2C2C; /* optional glow for visibility */
+    }
+
+    .blinking-marker .red-circle {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
     }
   </style>
 </head>
@@ -23,5 +41,11 @@
   <script src="/static/js/rescue.js"></script>
 </body>
 </html>
+
+
+
+
+
+
 
 

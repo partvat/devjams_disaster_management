@@ -7,12 +7,16 @@ async function initRole() {
       const locations = await res.json();
       layerGroup.clearLayers();
       locations.forEach(loc => {
-        L.marker([loc.lat, loc.lng], { 
-          icon: L.icon({ 
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/565/565547.png', 
-            iconSize: [35,35] 
-          }) 
-        }).addTo(layerGroup).bindPopup("<b>To Be Rescued</b>");
+        // Blinking red circle marker using DivIcon
+        const redCircle = L.divIcon({
+          className: 'blinking-marker',
+          html: '<div class="red-circle"></div>',
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        });
+        L.marker([loc.lat, loc.lng], { icon: redCircle })
+         .addTo(layerGroup)
+         .bindPopup("<b>To Be Rescued</b>");
       });
     }
 
@@ -26,9 +30,17 @@ async function initRole() {
         const lng = pos.coords.longitude;
         map.setView([lat, lng], 15);
 
-        L.marker([lat, lng], { 
-          icon: L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/565/565547.png', iconSize: [35,35] }) 
-        }).addTo(map).bindPopup("<b>You (To Be Rescued)</b>").openPopup();
+        const redCircle = L.divIcon({
+          className: 'blinking-marker',
+          html: '<div class="red-circle"></div>',
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        });
+
+        L.marker([lat, lng], { icon: redCircle })
+         .addTo(map)
+         .bindPopup("<b>You (To Be Rescued)</b>")
+         .openPopup();
 
         fetch('/store-location', {
           method: 'POST',
@@ -42,4 +54,6 @@ async function initRole() {
 }
 
 initRole();
+
+
 

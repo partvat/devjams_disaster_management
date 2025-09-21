@@ -6,58 +6,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
-    .half {
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    .split {
+      height: 100%;
       width: 50%;
-      height: 100vh;
+      position: fixed;
+      top: 0;
+      cursor: pointer;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      color: white;
       font-size: 2rem;
       font-weight: bold;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+      transition: all 0.3s ease;
     }
-    .rescuer {
-      background-color: #00B4D8;
+    .split-left {
+      left: 0;
+      background: #3B82F6; /* Blue for Rescuers */
     }
-    .rescuer:hover {
-      background-color: #3dcdf0;
+    .split-left:hover {
+      filter: brightness(0.9);
     }
-    .rescuer:active {
-      background-color: #a8eaff;
+    .split-right {
+      right: 0;
+      background: #EF4444; /* Red for To Be Rescued */
     }
-    .toRescue {
-      background-color: #FF3333;
-    }
-    .toRescue:hover {
-      background-color: #ff6666;
-    }
-    .toRescue:active {
-      background-color: #ffcccc;
-    }
-    /* Divider */
-    .divider {
-      width: 4px; /* thinner line */
-      background-color: black;
+    .split-right:hover {
+      filter: brightness(0.9);
     }
   </style>
 </head>
-<body class="flex h-screen w-screen overflow-hidden">
-  <div class="half rescuer" onclick="window.location.href='/map?role=rescuers'">
-    🦺 Rescuer
+<body>
+  <div class="split split-left" onclick="window.location.href='/map?role=rescuers'">
+    🦺 Rescuers
   </div>
-  <div class="divider"></div>
-  <div class="half toRescue" onclick="window.location.href='/map?role=toRescue'">
+  <div class="split split-right" onclick="window.location.href='/map?role=toRescue'">
     🆘 To Be Rescued
   </div>
 </body>
 </html>
-
-
-
-
-
-
-

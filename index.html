@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Disaster Response Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
+    <style>
+      #map {
+        height: 600px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Disaster Response Map</h3>
+    <div class="min-h-screen bg-gray-100 flex flex-col items-center p-6">
+      <h1 class="text-3xl font-bold text-blue-600 mb-6">🌍 Disaster Response Map</h1>
+      <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center w-full max-w-5xl mb-6">
+        <h1 class="text-2xl font-bold text-blue-600">Disaster Response&nbsp;</h1>
+        <ul class="flex space-x-6">
+          <li><a href="#" class="text-gray-700 hover:text-blue-600">&nbsp;Home</a></li>
+          <li><a href="#" class="text-gray-700 hover:text-blue-600">&nbsp;Shelters</a></li>
+          <li><a href="#" class="text-gray-700 hover:text-blue-600">&nbsp;Alerts</a></li>
+        </ul>
+      </nav>
+
+      <div class="bg-white shadow-lg rounded-2xl overflow-hidden w-full max-w-5xl mb-6">
+        <div id="map"></div>
+      </div>
+
+      <button id="sendAlert" class="mt-6 px-6 py-3 bg-red-500 text-white font-semibold rounded-xl shadow hover:bg-red-600 transition">
+        🚨 Send Alert
+      </button>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
+        <div class="bg-white shadow-md rounded-xl p-4">
+          <h2 class="text-lg font-bold text-gray-800">Shelter Name</h2>
+          <p class="text-gray-600">📍 Location: Bengaluru</p>
+          <p class="text-gray-600">👥 Capacity: 50 people</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
+    <script>
+      // Initialize the map centered on India by default
+      const map = L.map("map").setView([20.5937, 78.9629], 5);
+
+      // Add OpenStreetMap tiles
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      // Geolocation: center map on user location if available
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            map.setView([userLat, userLng], 15);
+            L.marker([userLat, userLng])
+              .addTo(map)
+              .bindPopup("You are here")
+              .openPopup();
+          },
+          () => { alert("Unable to fetch your location."); }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
+      }
+
+      // Disaster types as layer groups
+      const disasterTypes = {
+        Flood: L.layerGroup().addTo(map),
+        Cyclone: L.layerGroup().addTo(map),
+        Earthquake: L.layerGroup().addTo(map),
+        Heatwave: L.layerGroup().addTo(map),
+      };
+
+      function getColorForSeverity(severity) {
+        switch (severity) {
+          case "High": return "red";
+          case "Moderate": return "orange";
+          case "Low": return "green";
+          default: return "gray";
+        }
+      }
+
+      // ---- NEW: Load shelters.json ----
+      fetch("shelters.json")
+        .then(response => response.json())
+        .then(data => {
+          if (data.type === "FeatureCollection") {
+            // GeoJSON format
+            L.geoJSON(data, {
+              onEachFeature: function (feature, layer) {
+                let props = feature.properties || {};
+                let popupContent = `
+                  <b>${props.name || "Unnamed Shelter"}</b><br/>
+                  📍 ${props.address || "No address"}<br/>
+                  👥 Capacity: ${props.capacity || "Unknown"}
+                `;
+                layer.bindPopup(popupContent);
+              },
+              pointToLayer: function (feature, latlng) {
+                return L.marker(latlng, {
+                  icon: L.icon({
+                    iconUrl: "https://cdn-icons-png.flaticon.com/512/190/190411.png",
+                    iconSize: [25, 25]
+                  })
+                });
+              }
+            }).addTo(map);
+          } else {
+            // Plain array format
+            data.forEach(shelter => {
+              L.marker([shelter.lat, shelter.lon])
+                .addTo(map)
+                .bindPopup(`
+                  <b>${shelter.name}</b><br/>
+                  📍 ${shelter.address || ""}<br/>
+                  👥 Capacity: ${shelter.capacity || "Unknown"}
+                `);
+            });
+          }
+        })
+        .catch(err => console.error("Error loading shelters.json:", err));
+
+      // ---- Disaster alerts fetch (replace with real RSS if needed) ----
+      // Example placeholder removed local path
+      // You can re-add NDMA RSS or API fetch here
+
+      // Add layer control for disaster types
+      L.control.layers(null, disasterTypes).addTo(map);
+
+      // Disaster Center marker (Bangalore)
+      L.marker([12.9716, 77.5946])
+        .addTo(map)
+        .bindPopup("Disaster Center")
+        .openPopup();
+    </script>
+  </body>
+</html>

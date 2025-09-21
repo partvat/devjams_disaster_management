@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Disaster Response Map - Landing</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .half {
+      width: 50%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    }
+    .rescuer {
+      background-color: #00B4D8;
+    }
+    .rescuer:hover {
+      background-color: #3dcdf0;
+    }
+    .rescuer:active {
+      background-color: #a8eaff;
+    }
+    .toRescue {
+      background-color: #FF3333;
+    }
+    .toRescue:hover {
+      background-color: #ff6666;
+    }
+    .toRescue:active {
+      background-color: #ffcccc;
+    }
+    /* Divider */
+    .divider {
+      width: 4px; /* thinner line */
+      background-color: black;
+    }
+  </style>
+</head>
+<body class="flex h-screen w-screen overflow-hidden">
+  <div class="half rescuer" onclick="window.location.href='/map?role=rescuers'">
+    🦺 Rescuer
+  </div>
+  <div class="divider"></div>
+  <div class="half toRescue" onclick="window.location.href='/map?role=toRescue'">
+    🆘 To Be Rescued
+  </div>
+</body>
+</html>
+
+
+
+
+
+
+

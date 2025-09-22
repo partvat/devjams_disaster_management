@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TDMP — Disaster Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <style>
+    :root{
+      --bg: #0b1020;
+      --card: rgba(59,130,246,0.12);
+      --card-hover: rgba(59,130,246,0.22);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59,130,246,0.5);
+      --danger: #ef4444;
+      --ok: #10b981;
+      --text: #e8eefc;
+      --muted: rgba(232,238,252,0.7);
+      --grid: rgba(120,170,255,0.06);
+    }
+    *{ box-sizing: border-box; margin:0; padding:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans"; }
+    body{ background: radial-gradient(1200px 600px at 20% -10%, #12223f, transparent), var(--bg); color: var(--text); min-height:100vh; }
+    header{ padding: 18px 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--grid); position: sticky; top:0; backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(9,12,24,0.7), rgba(9,12,24,0.3)); z-index: 5; }
+    .brand{ font-weight:800; letter-spacing:0.5px; color: var(--accent); text-shadow: 0 0 12px var(--accent-glow); }
+    .nav{ display:flex; gap:10px; }
+    .btn{
+      background: var(--card); color: var(--text); border:1px solid rgba(59,130,246,0.4);
+      padding:10px 14px; border-radius:12px; cursor:pointer; transition: .2s; font-weight:700;
+      box-shadow: 0 0 10px rgba(59,130,246,0.18);
+    }
+    .btn:hover{ background: var(--card-hover); transform: translateY(-1px); box-shadow: 0 0 18px rgba(59,130,246,0.35); }
+    .btn.danger{ background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.5); }
+    .btn.ok{ background: rgba(16,185,129,0.18); border-color: rgba(16,185,129,0.5); }
+    main{ padding: 20px; max-width: 1200px; margin: 0 auto; }
+    .grid{
+      display:grid; grid-template-columns: repeat(2, 1fr); gap:18px; margin-bottom:18px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(20,30,55,0.65), rgba(8,12,24,0.65));
+      border:1px solid rgba(120,170,255,0.25);
+      border-radius:16px; padding:18px; box-shadow: inset 0 0 0 1px rgba(120,170,255,0.08), 0 12px 40px rgba(0,0,0,0.35);
+    }
+    .card h2{ font-size:1.1rem; margin-bottom:8px; color: var(--text); }
+    .muted{ color: var(--muted); font-size: 0.95rem; }
+    .row{ display:flex; flex-wrap: wrap; gap:10px; margin-top:12px; }
+    .pill{ padding:8px 12px; border-radius:999px; border:1px solid var(--grid); color: var(--muted); }
+    .inline{ display:flex; align-items:center; gap:10px; flex-wrap: wrap; }
+    #map{ width:100%; height: 64vh; border-radius:16px; border:1px solid rgba(120,170,255,0.25); overflow: hidden; }
+    footer{ padding: 18px 20px; display:flex; justify-content:space-between; color: var(--muted); border-top:1px solid var(--grid); margin-top:18px; }
+    @media (max-width: 880px){
+      .grid{ grid-template-columns: 1fr; }
+      #map{ height: 56vh; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">TDMP</div>
+    <div class="nav">
+      <button class="btn" onclick="showSection('landing')">Home</button>
+      <button class="btn" onclick="showSection('mapSection')">Map</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="landing">
+      <div class="grid">
+        <div class="card">
+          <h2>Mark me for Rescue</h2>
+          <p class="muted">Share current location to be visible to rescuers in the map layer.</p>
+          <div class="row">
+            <button class="btn danger" onclick="markLocation('toRescue')">Share my location</button>
+            <span class="pill">Role: Survivor</span>
+          </div>
+        </div>
+        <div class="card">
+          <h2>I’m a Rescuer</h2>
+          <p class="muted">Share current location so survivor clusters and routes can be planned.</p>
+          <div class="row">
+            <button class="btn ok" onclick="markLocation('rescuers')">Share my location</button>
+            <span class="pill">Role: Rescuer</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>How it works</h2>
+        <div class="inline muted">
+          <span class="pill">Store Location</span>
+          <span>→</span>
+          <span class="pill">Local JSON (simulated)</span>
+          <span>→</span>
+          <span class="pill">Map Layers</span>
+        </div>
+        <p class="muted" style="margin-top:8px">
+          This static page simulates the Flask endpoints by writing to localStorage instead of user_locations.json and rescuers_locations.json. Use the Map tab to view both layers.
+        </p>
+      </div>
+    </section>
+
+    <section id="mapSection" style="display:none">
+      <div class="card" style="margin-bottom:12px">
+        <h2>Map Controls</h2>
+        <div class="row">
+          <button class="btn" onclick="reloadMarkers()">Reload markers</button>
+          <button class="btn" onclick="clearData('toRescue')">Clear Survivors</button>
+          <button class="btn" onclick="clearData('rescuers')">Clear Rescuers</button>
+          <button class="btn danger" onclick="clearData('all')">Clear All</button>
+        </div>
+      </div>
+      <div id="map"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div>TDMP — Zero-Casualty Mission</div>
+    <div class="muted">Local demo: stores data in browser</div>
+  </footer>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script>
+    // Keys that mirror Flask JSON files
+    const K_SURV = 'user_locations.json';
+    const K_RESC = 'rescuers_locations.json';
+
+    function readList(key){
+      try { return JSON.parse(localStorage.getItem(key) || '[]'); }
+      catch(e){ return []; }
+    }
+    function writeList(key, arr){
+      localStorage.setItem(key, JSON.stringify(arr, null, 2));
+    }
+    // Ensure arrays exist (like Flask created files)
+    [K_SURV, K_RESC].forEach(k => { if(!localStorage.getItem(k)) writeList(k, []); });
+
+    function showSection(id){
+      document.getElementById('landing').style.display = (id === 'landing') ? '' : 'none';
+      document.getElementById('mapSection').style.display = (id === 'mapSection') ? '' : 'none';
+      if(id === 'mapSection'){ setTimeout(() => map.invalidateSize(), 150); }
+    }
+
+    async function getCurrentPosition(){
+      return new Promise((resolve, reject) => {
+        if(!navigator.geolocation){
+          reject(new Error('Geolocation not supported'));
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          err => reject(err),
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      });
+    }
+
+    async function markLocation(role){
+      try{
+        const { lat, lng } = await getCurrentPosition();
+        const key = role === 'toRescue' ? K_SURV : role === 'rescuers' ? K_RESC : null;
+        if(!key) { alert('Invalid role'); return; }
+        const list = readList(key);
+        list.push({ lat, lng, ts: Date.now() });
+        writeList(key, list);
+        alert('Location saved. Open the Map to view.');
+        reloadMarkers();
+      }catch(e){
+        alert('Could not get location: ' + (e.message || e));
+      }
+    }
+
+    // Leaflet map
+    const map = L.map('map', { zoomControl: true });
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+    map.setView([20.5937, 78.9629], 5); // India center-ish
+
+    // Layers
+    const survIcon = L.divIcon({
+      className: 'survivor-marker',
+      html: '<div style="width:14px;height:14px;border-radius:50%;background:#ef4444;box-shadow:0 0 10px rgba(239,68,68,0.9)"></div>',
+      iconSize: [14,14], iconAnchor: [7,7]
+    });
+    const rescIcon = L.divIcon({
+      className: 'rescuer-marker',
+      html: '<div style="width:14px;height:14px;border-radius:50%;background:#10b981;box-shadow:0 0 10px rgba(16,185,129,0.9)"></div>',
+      iconSize: [14,14], iconAnchor: [7,7]
+    });
+
+    const survLayer = L.layerGroup().addTo(map);
+    const rescLayer = L.layerGroup().addTo(map);
+
+    function reloadMarkers(){
+      survLayer.clearLayers();
+      rescLayer.clearLayers();
+      const surv = readList(K_SURV);
+      const resc = readList(K_RESC);
+
+      const bounds = L.latLngBounds([]);
+
+      surv.forEach(p => {
+        const m = L.marker([p.lat, p.lng], { icon: survIcon }).bindPopup(
+          `<b>Needs Rescue</b><br>${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}<br>${new Date(p.ts||Date.now()).toLocaleString()}`
+        );
+        m.addTo(survLayer);
+        bounds.extend([p.lat, p.lng]);
+      });
+
+      resc.forEach(p => {
+        const m = L.marker([p.lat, p.lng], { icon: rescIcon }).bindPopup(
+          `<b>Rescuer</b><br>${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}<br>${new Date(p.ts||Date.now()).toLocaleString()}`
+        );
+        m.addTo(rescLayer);
+        bounds.extend([p.lat, p.lng]);
+      });
+
+      if(bounds.isValid()){
+        map.fitBounds(bounds.pad(0.2));
+      }
+    }
+
+    function clearData(which){
+      if(which === 'toRescue' || which === 'all') writeList(K_SURV, []);
+      if(which === 'rescuers' || which === 'all') writeList(K_RESC, []);
+      reloadMarkers();
+    }
+
+    // Initial load
+    reloadMarkers();
+  </script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TDMP</title>
+  <script>
+   function runSOS() {
+      fetch("http://127.0.0.1:5000/run-sos")
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("output").innerText =
+            "Output:\n" + data.stdout + "\nError:\n" + data.stderr;
+        })
+        .catch(err => console.error(err));
+    }
+  const mockHazards = [
+    { level: 'High', note: 'Flooding risk near river', lat: 28.61, lon: 77.21 },
+    { level: 'Medium', note: 'Storm expected', lat: 19.07, lon: 72.87 },
+    { level: 'Low', note: 'Heatwave advisory', lat: 13.08, lon: 80.27 }
+  ];
+  const mockShelters = [
+    { name: 'Smyrna Home', latitude: 11.3948147, longitude: 76.6961858 },
+    { name: 'Unnamed Shelter', latitude: 28.5931653, longitude: 77.1626295 }
+  ];
+
+  function openModal(title){
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modal').classList.add('active');
+    document.getElementById('coordsList').innerHTML = '';
+  }
+  function closeModal(){
+    document.getElementById('modal').classList.remove('active');
+  }
+
+  function renderCoords(){
+    const el = document.getElementById('coordsList');
+    el.innerHTML = '';
+    mockHazards.forEach(h => {
+      const wrap = document.createElement('div');
+      wrap.style.padding = '8px 0';
+      wrap.style.borderBottom = '1px dashed rgba(255,255,255,0.1)';
+      const strong = document.createElement('strong');
+      strong.textContent = `${h.level} risk`;
+      wrap.appendChild(strong);
+      wrap.appendChild(document.createTextNode(' — ' + (h.note || '')));
+      wrap.appendChild(document.createElement('br'));
+      const span = document.createElement('span');
+      span.style.color = 'var(--muted)';
+      span.style.fontSize = '13px';
+      span.textContent = `Coords: ${Number(h.lat).toFixed(6)}, ${Number(h.lon).toFixed(6)}`;
+      wrap.appendChild(span);
+      el.appendChild(wrap);
+    });
+  }
+
+  function openShelters(){
+    alert('Shelters list (demo):\n' + mockShelters.map(s=> `${s.name} — ${s.latitude.toFixed(6)},${s.longitude.toFixed(6)}`).join('\n'));
+  }
+  function gotoSafety(){
+    const nearest = mockShelters[0];
+    alert(`Nearest shelter: ${nearest.name}\nCoords: ${nearest.latitude.toFixed(6)},${nearest.longitude.toFixed(6)}\nOpening map (demo)...`);
+    openHazards();
+  }
+  function requestRescue(){
+    if(confirm('Confirm request for rescue? This will broadcast your location.')){
+      alert('Rescue requested. ETA (demo): 20 mins.');
+    }
+  }
+  function openHazards(){
+    openModal('Predicted Danger Zones (AI)');
+    renderCoords();
+  }
+  function activateSOS(){
+    const got = confirm('Activate SOS now? This is an emergency broadcast.');
+    if(got){
+      const pill = document.querySelector('.danger-pill');
+      pill.innerText = 'SOS • Sent';
+      pill.style.opacity = 0.95;
+      pill.style.boxShadow = '0 0 35px rgba(239,68,68,0.7)';
+      setTimeout(()=> alert('SOS broadcasted to emergency services (demo).'), 600);
+    }
+  }
+
+  document.querySelectorAll('.tile').forEach(t=>{
+    t.tabIndex = 0;
+    t.addEventListener('click', ()=> {
+      const key = t.getAttribute('data-key');
+      if(key==='1') openShelters();
+      if(key==='2') gotoSafety();
+      if(key==='3') requestRescue();
+      if(key==='4') openHazards();
+    });
+    t.addEventListener('keydown', e=>{
+      if(e.key==='Enter' || e.key===' '){ t.click(); }
+    });
+  });
+</script>
+  <style>
+        .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .tile {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8); /* Blue disaster theme */
+        padding: 20px;
+        border-radius: 14px;
+        color: #fff;
+        text-align: center;
+        cursor: pointer;
+        min-height: 160px; /* ensures all tiles same height */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .tile:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    }
+
+    .tile h3 {
+        margin-bottom: 10px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .tile p {
+        font-size: 14px;
+        opacity: 0.9;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    :root {
+      --bg: #0d1117;
+      --card: rgba(29, 78, 216, 0.15);
+      --card-hover: rgba(29, 78, 216, 0.25);
+      --accent: #3b82f6; /* blue-500 */
+      --accent-glow: rgba(59,130,246,0.5);
+      --danger: #ef4444; /* red-500 */
+      --muted: rgba(255,255,255,0.6);
+      --text: #f9f9f9;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 2rem;
+      text-shadow: 0 0 12px var(--accent-glow);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 200px);
+      gap: 1.5rem;
+      justify-content: center;
+      align-items: center;
+    }
+    .tile {
+      background: var(--card);
+      border-radius: 1rem;
+      padding: 2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      user-select: none;
+      font-weight: 600;
+      color: var(--text);
+      border: 1px solid rgba(59,130,246,0.4);
+      box-shadow: 0 0 10px rgba(59,130,246,0.15);
+    }
+    .tile:hover {
+      background: var(--card-hover);
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .tile:focus {
+      outline: 2px solid var(--accent);
+    }
+    .danger-pill {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: var(--danger);
+      padding: 0.5rem 1.25rem;
+      border-radius: 999px;
+      font-weight: 700;
+      color: #fff;
+      box-shadow: 0 0 25px rgba(239,68,68,0.6);
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: #1e293b;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 0 30px rgba(59,130,246,0.4);
+      border: 1px solid var(--accent-glow);
+    }
+    .close-btn {
+      float: right;
+      cursor: pointer;
+      color: var(--muted);
+      font-weight: bold;
+    }
+    .close-btn:hover { color: #fff; }
+    #coordsList div {
+      margin-bottom: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>TDMP</h1>
+  <div class="grid">
+    <!-- <div class="tile" data-key="1">About Our Cause</div> -->
+    <div class="tile" data-key="2"><a href="C:\Users\dell\Desktop\Disaster_manage\index.html">Get Me to Safety</a></div>
+    <div class="tile" data-key="3" onclick="runSOS()"><button onclick="fetch('C:\Users\dell\Desktop\Disaster_manage\app.py')">SOS Service</button></div>
+    <div class="tile" data-key="4" >Predicted Danger Zones</a></div>
+  </div>
+
+
+
+  
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">✕</span>
+      <h2 id="modalTitle">Modal</h2>
+      <div id="coordsList"></div>
+    </div>
+  </div>
+
+
+</body>
+</html> 
+
+
+
+
+
+
+
+

@@ -1,152 +1,685 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Disaster Response Map</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Tailwind CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-    <!-- Leaflet CSS -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Disaster Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <!-- Leaflet Routing Machine CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
-    <style>
-      #map {
-        height: 600px;
-        width: 100%;
-      }
-    </style>
-  </head>
-  <body>
-    <h3>Disaster Response Map</h3>
-    <div class="min-h-screen bg-gray-100 flex flex-col items-center p-6">
-      <h1 class="text-3xl font-bold text-blue-600 mb-6">🌍 Disaster Response Map</h1>
-      <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center w-full max-w-5xl mb-6">
-        <h1 class="text-2xl font-bold text-blue-600">Disaster Response&nbsp;</h1>
-        <ul class="flex space-x-6">
-          <li><a href="#" class="text-gray-700 hover:text-blue-600">&nbsp;Home</a></li>
-          <li><a href="#" class="text-gray-700 hover:text-blue-600">&nbsp;Shelters</a></li>
-          <li><a href="#" class="text-gray-700 hover:text-blue-600">&nbsp;Alerts</a></li>
-        </ul>
-      </nav>
-
-      <div class="bg-white shadow-lg rounded-2xl overflow-hidden w-full max-w-5xl mb-6">
-        <div id="map"></div>
-      </div>
-
-      <button id="sendAlert" class="mt-6 px-6 py-3 bg-red-500 text-white font-semibold rounded-xl shadow hover:bg-red-600 transition">
-        🚨 Send Alert
-      </button>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
-        <div class="bg-white shadow-md rounded-xl p-4">
-          <h2 class="text-lg font-bold text-gray-800">Shelter Name</h2>
-          <p class="text-gray-600">📍 Location: Bengaluru</p>
-          <p class="text-gray-600">👥 Capacity: 50 people</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Leaflet JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <!-- Leaflet Routing Machine JS -->
-    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
-    <script>
-      // Initialize the map centered on India by default
-      const map = L.map("map").setView([20.5937, 78.9629], 5);
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; }
+        #app-container { display: flex; height: 100vh; }
+        #sidebar { width: 400px; background-color: #f8f9fa; display: flex; flex-direction: column; box-shadow: 2px 0 5px rgba(0,0,0,0.1); z-index: 1000;}
+        #map-container { flex-grow: 1; position: relative; }
+        #map { height: 100%; width: 100%; background-color: #aadaff; }
+        .data-item { cursor: pointer; transition: background-color 0.2s ease-in-out; }
+        .data-item.selected, .data-item:hover { background-color: #e2e8f0; }
+        .status-dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; border: 1px solid rgba(0,0,0,0.2); }
+        .status-available { background-color: #4ade80; }
+        .status-nearing_capacity { background-color: #facc15; }
+        .status-full { background-color: #f87171; }
+        .admin-panel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 2000; width: 90%; max-width: 500px;}
+        .magnitude { font-size: 1.5rem; font-weight: 700; }
+        .mag-low { color: #22c55e; }
+        .mag-medium { color: #f59e0b; }
+        .mag-high { color: #ef4444; }
+        .tab-button { flex: 1; padding: 0.75rem 0.5rem; cursor: pointer; text-align: center; font-weight: 600; color: #4b5563; border-bottom: 3px solid transparent; transition: all 0.2s ease; }
+        .tab-button:hover { background-color: #e5e7eb; }
+        .tab-button.active { color: #1d4ed8; border-color: #2563eb; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        #toast { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.75); color: white; padding: 10px 20px; border-radius: 20px; z-index: 2000; visibility: hidden; opacity: 0; transition: opacity 0.3s, visibility 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; }
+    </style>
+</head>
+<body>
 
-      // Add OpenStreetMap tiles
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
+    <div id="app-container">
+        <div id="sidebar">
+            <div class="p-4 bg-gray-800 text-white">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-xl font-bold">Live Disaster Dashboard</h1>
+                </div>
+                <div class="mt-3 flex">
+                    <input type="text" id="search-input" placeholder="Search for a location..." class="w-full p-2 rounded-l-md text-black focus:outline-none">
+                    <button id="search-button" class="bg-blue-500 hover:bg-blue-600 p-2 rounded-r-md">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
+                </div>
+                <p id="current-time" class="text-sm text-gray-300 mt-2"></p>
+                <div id="status-banner" class="mt-2 p-2 rounded-lg text-center font-semibold bg-gray-700">Fetching live alerts...</div>
+            </div>
 
-      // Geolocation: center map on user location if available
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const userLat = position.coords.latitude;
-            const userLng = position.coords.longitude;
-            map.setView([userLat, userLng], 15);
-            L.marker([userLat, userLng])
-              .addTo(map)
-              .bindPopup("You are here")
-              .openPopup();
-          },
-          () => { alert("Unable to fetch your location."); }
-        );
-      } else {
-        alert("Geolocation is not supported by your browser.");
-      }
+            <div class="flex border-b border-gray-200 bg-white">
+                <div class="tab-button active" onclick="switchTab('shelters')">Shelters</div>
+                <div class="tab-button" onclick="switchTab('earthquakes')">Earthquakes</div>
+                <div class="tab-button" onclick="switchTab('nasa')">Events</div>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto">
+                <div id="shelters-panel" class="tab-panel active">
+                    <div class="p-4 border-b">
+                        <h2 class="text-lg font-bold">Shelter Data</h2>
+                        <button onclick="loadSheltersFromOSM()" class="w-full mt-2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded">
+                            Load Shelters in View (Live OSM)
+                        </button>
+                        <button onclick="findAndRouteToClosestShelter()" class="w-full mt-2 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                            Find Closest Vacant Shelter
+                        </button>
+                    </div>
+                    <div id="shelter-list"></div>
+                </div>
+                <div id="earthquakes-panel" class="tab-panel">
+                     <div class="p-4 border-b">
+                         <h2 class="text-lg font-bold">Live Earthquake Feed (USGS)</h2>
+                     </div>
+                    <div id="earthquake-list"></div>
+                </div>
+                <div id="nasa-panel" class="tab-panel">
+                     <div class="p-4 border-b">
+                         <h2 class="text-lg font-bold">Global Natural Events (NASA)</h2>
+                     </div>
+                    <div id="nasa-event-list"></div>
+                </div>
+            </div>
 
-      // Disaster types as layer groups
-      const disasterTypes = {
-        Flood: L.layerGroup().addTo(map),
-        Cyclone: L.layerGroup().addTo(map),
-        Earthquake: L.layerGroup().addTo(map),
-        Heatwave: L.layerGroup().addTo(map),
-      };
+            <div class="p-2 text-center text-xs text-gray-500 border-t">
+                <p>Click "Live Disaster Dashboard" 5 times for admin panel.</p>
+            </div>
+        </div>
 
-      function getColorForSeverity(severity) {
-        switch (severity) {
-          case "High": return "red";
-          case "Moderate": return "orange";
-          case "Low": return "green";
-          default: return "gray";
+        <div id="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+    
+    <div id="admin-panel" class="admin-panel hidden">
+        <h2 class="text-2xl font-bold mb-4">Admin Control (Local Shelters)</h2>
+        <div id="admin-shelter-list" class="space-y-4 max-h-96 overflow-y-auto"></div>
+        <button onclick="toggleAdminPanel(false)" class="mt-6 w-full bg-red-500 text-white py-2 rounded">Close</button>
+    </div>
+    
+    <div id="toast"></div>
+
+<script>
+    // --- CONFIGURATION & STATE ---
+    const VELLORE_COORDS = [12.9165, 79.1325];
+    const USGS_API_URL = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson';
+    const NASA_EONET_API_URL = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=20';
+    
+    let map;
+    let userMarker;
+    let shelterMarkers = {};
+    let earthquakeMarkers = {};
+    let nasaEventMarkers = {};
+    let osmShelterLayer;
+    let routingControl;
+    let clickCounter = 0;
+    let clickTimer;
+    
+    const initialShelterData = [];
+
+    // --- CORE FUNCTIONS ---
+    document.addEventListener('DOMContentLoaded', initializeDashboard);
+
+    function initializeDashboard() {
+        setupMap();
+        setStaticTime();
+        loadLocalShelterData();
+        fetchEarthquakeData();
+        fetchNasaEvents();
+        setInterval(fetchEarthquakeData, 300000);
+        setInterval(fetchNasaEvents, 900000);
+        
+        setupEventListeners();
+    }
+    
+    function setupMap() {
+        map = L.map('map').setView(VELLORE_COORDS, 8);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        osmShelterLayer = L.layerGroup().addTo(map);
+        locateUser(); // This function now handles real-time location
+    }
+    
+    function setupEventListeners() {
+        document.querySelector('.bg-gray-800 h1').addEventListener('click', handleTitleClick);
+        document.getElementById('search-button').addEventListener('click', searchLocation);
+        document.getElementById('search-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                searchLocation();
+            }
+        });
+    }
+    
+    // --- Search Functionality ---
+    async function searchLocation() {
+        const searchInput = document.getElementById('search-input');
+        const query = searchInput.value;
+        if (!query) return;
+
+        showToast(🔍 Searching for "${query}"...);
+        
+        const url = https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=in;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data && data.length > 0) {
+                const { lat, lon } = data[0];
+                showToast("✅ Location found!");
+                map.flyTo([lat, lon], 13);
+                map.once('moveend', loadSheltersFromOSM);
+            } else {
+                showToast(⚠ Could not find "${query}".);
+            }
+        } catch (error) {
+            console.error("Geocoding error:", error);
+            showToast("⚠ Search failed. Please try again.");
         }
-      }
+    }
 
-      // ---- NEW: Load shelters.json ----
-      fetch("shelters.json")
-        .then(response => response.json())
-        .then(data => {
-          if (data.type === "FeatureCollection") {
-            // GeoJSON format
-            L.geoJSON(data, {
-              onEachFeature: function (feature, layer) {
-                let props = feature.properties || {};
-                let popupContent = `
-                  <b>${props.name || "Unnamed Shelter"}</b><br/>
-                  📍 ${props.address || "No address"}<br/>
-                  👥 Capacity: ${props.capacity || "Unknown"}
-                `;
-                layer.bindPopup(popupContent);
-              },
-              pointToLayer: function (feature, latlng) {
-                return L.marker(latlng, {
-                  icon: L.icon({
-                    iconUrl: "https://cdn-icons-png.flaticon.com/512/190/190411.png",
-                    iconSize: [25, 25]
-                  })
-                });
-              }
-            }).addTo(map);
-          } else {
-            // Plain array format
-            data.forEach(shelter => {
-              L.marker([shelter.lat, shelter.lon])
-                .addTo(map)
-                .bindPopup(`
-                  <b>${shelter.name}</b><br/>
-                  📍 ${shelter.address || ""}<br/>
-                  👥 Capacity: ${shelter.capacity || "Unknown"}
-                `);
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+        document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+
+        document.getElementById(${tabName}-panel).classList.add('active');
+        document.querySelector([onclick="switchTab('${tabName}')"]).classList.add('active');
+    }
+    
+    // --- Load Shelters from OSM ---
+    async function loadSheltersFromOSM() {
+        showToast("⏳ Loading shelters in current map view...");
+        
+        const bounds = map.getBounds();
+        const bbox = ${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()};
+        
+        let query = `
+            [out:json][timeout:25];
+            (
+                node["amenity"="shelter"](${bbox});
+                way["amenity"="shelter"](${bbox});
+                node["emergency"="shelter"](${bbox});
+                way["emergency"="shelter"](${bbox});
+            );
+            out center;
+        `;
+
+        try {
+            const res = await fetch("https://overpass-api.de/api/interpreter", {
+                method: "POST",
+                body: data=${encodeURIComponent(query)}
             });
-          }
-        })
-        .catch(err => console.error("Error loading shelters.json:", err));
+            
+            if (!res.ok) throw new Error(Overpass API returned status ${res.status});
 
-      // ---- Disaster alerts fetch (replace with real RSS if needed) ----
-      // Example placeholder removed local path
-      // You can re-add NDMA RSS or API fetch here
+            const data = await res.json();
+            
+            osmShelterLayer.clearLayers();
 
-      // Add layer control for disaster types
-      L.control.layers(null, disasterTypes).addTo(map);
+            if (data.elements.length === 0) {
+                showToast("ℹ No shelters found in the current view.");
+                return;
+            }
 
-      // Disaster Center marker (Bangalore)
-      L.marker([12.9716, 77.5946])
-        .addTo(map)
-        .bindPopup("Disaster Center")
-        .openPopup();
-    </script>
-  </body>
+            const statuses = ['available', 'nearing_capacity', 'full'];
+
+            data.elements.forEach(el => {
+                let lat, lon;
+                if (el.type === 'node') {
+                    lat = el.lat;
+                    lon = el.lon;
+                } else if (el.center) {
+                    lat = el.center.lat;
+                    lon = el.center.lon;
+                }
+
+                if(lat && lon) {
+                    const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+                    const shelterMarker = L.circleMarker([lat, lon], {
+                        radius: 8,
+                        fillColor: getStatusColor(randomStatus),
+                        color: "#ffffff",
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.9
+                    });
+                    
+                    // Store shelter data on the marker itself
+                    shelterMarker.shelterData = {
+                        name: el.tags.name || "Unnamed Shelter",
+                        status: randomStatus,
+                        latlng: L.latLng(lat, lon)
+                    };
+
+                    shelterMarker.addTo(osmShelterLayer)
+                      .bindPopup(<b>🛑 Shelter (OSM)</b><br>${shelterMarker.shelterData.name}<br><b>Status: </b><span class="capitalize">${randomStatus.replace('_', ' ')}</span>);
+                }
+            });
+
+            showToast(✅ ${data.elements.length} shelters loaded with simulated status);
+        } catch(e) {
+            console.error("OSM Fetch Error:", e);
+            showToast("⚠ Could not load OSM shelters. Try again later.");
+        }
+    }
+
+    // --- NEW: Routing Functionality ---
+    function findAndRouteToClosestShelter() {
+        if (!userMarker) {
+            showToast("⚠ User location not available. Please allow location access.");
+            return;
+        }
+
+        const availableShelters = [];
+        // Combine local and OSM shelters for routing
+        const allShelters = [...osmShelterLayer.getLayers()];
+        Object.values(shelterMarkers).forEach(marker => allShelters.push(marker));
+
+
+        allShelters.forEach(layer => {
+            const data = layer.shelterData || (initialShelterData.find(s => s.id === layer.shelterId));
+            if (data && data.status === 'available') {
+                 if(!availableShelters.some(s => s.name === data.name)) {
+                    availableShelters.push(data);
+                 }
+            }
+        });
+
+        if (availableShelters.length === 0) {
+            showToast("ℹ No available shelters found.");
+            return;
+        }
+
+        let closestShelter = null;
+        let minDistance = Infinity;
+        const userLatLng = userMarker.getLatLng();
+
+        availableShelters.forEach(shelter => {
+            const shelterLatLng = shelter.latlng || L.latLng(shelter.lat, shelter.lon);
+            const distance = userLatLng.distanceTo(shelterLatLng);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestShelter = shelter;
+            }
+        });
+
+        if (closestShelter) {
+            showToast(✅ Routing to closest shelter: ${closestShelter.name});
+            if (routingControl) {
+                map.removeControl(routingControl);
+            }
+            routingControl = L.Routing.control({
+                waypoints: [
+                    userLatLng,
+                    closestShelter.latlng || L.latLng(closestShelter.lat, closestShelter.lon)
+                ],
+                routeWhileDragging: false,
+                show: false, // Hide the turn-by-turn instructions panel
+                lineOptions: {
+                    styles: [{color: 'blue', opacity: 0.8, weight: 6}]
+                }
+            }).addTo(map);
+        }
+    }
+
+
+    // --- LIVE NASA EONET DATA HANDLING ---
+    async function fetchNasaEvents() {
+        try {
+            const response = await fetch(NASA_EONET_API_URL);
+            if (!response.ok) throw new Error('NASA EONET API response was not ok');
+            const data = await response.json();
+            renderNasaEventList(data.events);
+            plotNasaEventsOnMap(data.events);
+        } catch (error) {
+            console.error("Failed to fetch NASA EONET data:", error);
+            document.getElementById('nasa-event-list').innerHTML = <p class="p-4 text-red-500">Could not load NASA event feed.</p>;
+        }
+    }
+    
+    function renderNasaEventList(events) {
+        const listElement = document.getElementById('nasa-event-list');
+        listElement.innerHTML = '';
+        events.forEach(event => {
+            const category = event.categories[0].title;
+            const item = document.createElement('div');
+            item.className = 'data-item p-3 border-b border-gray-200';
+            item.innerHTML = `
+                <div>
+                    <h3 class="font-bold">${event.title}</h3>
+                    <p class="text-sm font-semibold text-gray-600">${category}</p>
+                </div>
+            `;
+            item.addEventListener('click', () => {
+                const coords = event.geometry[0].coordinates;
+                map.flyTo([coords[1], coords[0]], 7);
+                nasaEventMarkers[event.id].openPopup();
+            });
+            listElement.appendChild(item);
+        });
+    }
+
+    function plotNasaEventsOnMap(events) {
+        Object.values(nasaEventMarkers).forEach(marker => map.removeLayer(marker));
+        nasaEventMarkers = {};
+
+        events.forEach(event => {
+            if (!event.geometry || event.geometry.length === 0) return;
+            const coords = event.geometry[0].coordinates;
+            // EONET can have single points or polygons. Handle both.
+            const lat = event.geometry[0].type === 'Point' ? coords[1] : coords[0][0][1];
+            const lon = event.geometry[0].type === 'Point' ? coords[0] : coords[0][0][0];
+
+            if (typeof lat !== 'number' || typeof lon !== 'number') return;
+
+            const icon = getNasaEventIcon(event.categories[0].id);
+            const marker = L.marker([lat, lon], { icon }).addTo(map);
+            
+            marker.bindPopup(<b>${event.categories[0].title}</b><br>${event.title});
+            nasaEventMarkers[event.id] = marker;
+        });
+    }
+
+    // --- LIVE EARTHQUAKE DATA HANDLING ---
+    async function fetchEarthquakeData() {
+        try {
+            const response = await fetch(USGS_API_URL);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            
+            renderEarthquakeList(data.features);
+            plotEarthquakesOnMap(data.features);
+            
+            if(data.features.length > 0) {
+                const latestQuake = data.features[0];
+                const quakeMag = latestQuake.properties.mag.toFixed(1);
+                const quakePlace = latestQuake.properties.place;
+                updateStatusBanner(LIVE: M ${quakeMag} earthquake ${quakePlace}, "red");
+            }
+
+        } catch (error) {
+            console.error("Failed to fetch earthquake data:", error);
+            updateStatusBanner("Could not load live earthquake feed", "yellow");
+        }
+    }
+
+    function renderEarthquakeList(earthquakes) {
+        const listElement = document.getElementById('earthquake-list');
+        listElement.innerHTML = '';
+        earthquakes.slice(0, 15).forEach(quake => {
+            const props = quake.properties;
+            const mag = props.mag.toFixed(1);
+            
+            const item = document.createElement('div');
+            item.className = 'data-item p-3 border-b border-gray-200';
+            item.innerHTML = `
+                <div class="flex items-center">
+                    <div class="magnitude ${getMagnitudeColor(mag)} w-16 text-center">${mag}</div>
+                    <div class="flex-grow ml-3">
+                        <h3 class="font-bold">${props.place}</h3>
+                        <p class="text-sm text-gray-600">${new Date(props.time).toLocaleString()}</p>
+                    </div>
+                </div>
+            `;
+            item.addEventListener('click', () => {
+                const coords = quake.geometry.coordinates;
+                map.flyTo([coords[1], coords[0]], 6);
+                earthquakeMarkers[quake.id].openPopup();
+            });
+            listElement.appendChild(item);
+        });
+    }
+    
+    function plotEarthquakesOnMap(earthquakes) {
+         Object.values(earthquakeMarkers).forEach(marker => map.removeLayer(marker));
+         earthquakeMarkers = {};
+
+         earthquakes.forEach(quake => {
+            const coords = quake.geometry.coordinates;
+            const mag = quake.properties.mag;
+            const marker = L.circleMarker([coords[1], coords[0]], {
+                radius: mag * 2,
+                fillColor: getMagnitudeColor(mag, true),
+                color: '#000', weight: 1, opacity: 1, fillOpacity: 0.7
+            }).addTo(map);
+
+            marker.bindPopup(<b>M ${mag.toFixed(1)} - ${quake.properties.place}</b><br>${new Date(quake.properties.time).toLocaleString()});
+            earthquakeMarkers[quake.id] = marker;
+         });
+    }
+
+    // --- LOCAL SHELTER DATA HANDLING ---
+    function loadLocalShelterData() {
+        const storedData = localStorage.getItem('velloreShelterData');
+        const data = storedData ? JSON.parse(storedData) : initialShelterData;
+        if (!storedData) {
+            localStorage.setItem('velloreShelterData', JSON.stringify(data));
+        }
+        updateShelterUI(data);
+    }
+
+    function updateShelterUI(data) {
+        renderShelterList(data);
+        plotSheltersOnMap(data);
+        populateAdminPanel(data);
+    }
+
+    function renderShelterList(shelters) {
+        const listElement = document.getElementById('shelter-list');
+        listElement.innerHTML = '';
+        if (shelters.length === 0) {
+            listElement.innerHTML = <p class="p-4 text-gray-500 text-center">No local shelters defined. Use the OSM loader to find shelters.</p>;
+            return;
+        }
+        shelters.forEach(shelter => {
+            const item = document.createElement('div');
+            item.className = 'data-item p-4 border-b border-gray-200';
+            item.id = list-${shelter.id};
+            item.innerHTML = `
+                <h3 class="font-bold text-lg">${shelter.name}</h3>
+                <div class="flex items-center mt-1">
+                    <span class="status-dot status-${shelter.status.replace('_', '')}"></span>
+                    <span class="capitalize text-sm font-medium text-gray-700">${shelter.status.replace('_', ' ')}</span>
+                </div>
+            `;
+            item.addEventListener('click', () => onShelterSelect(shelter.id));
+            listElement.appendChild(item);
+        });
+    }
+    
+    function plotSheltersOnMap(shelters) {
+        Object.values(shelterMarkers).forEach(marker => {
+            if(marker.shelterId) map.removeLayer(marker); // only remove local markers
+        });
+
+        shelters.forEach(shelter => {
+            const icon = L.divIcon({
+                html: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${getStatusColor(shelter.status)}" width="36px" height="36px"><path d="M12 2c-4.418 0-8 3.582-8 8 0 4.418 8 12 8 12s8-7.582 8-12c0-4.418-3.582-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" stroke="white" stroke-width="1.5" /></svg>,
+                className: '', iconSize: [36, 36], iconAnchor: [18, 36]
+            });
+
+            const marker = L.marker([shelter.lat, shelter.lon], { icon }).addTo(map);
+            marker.bindPopup(<b>${shelter.name}</b><br>${shelter.details});
+            marker.on('click', () => onShelterSelect(shelter.id));
+            marker.shelterId = shelter.id; // Tag this as a local shelter marker
+            shelterMarkers[shelter.id] = marker;
+        });
+    }
+    
+    function onShelterSelect(shelterId) {
+        const data = JSON.parse(localStorage.getItem('velloreShelterData') || '[]');
+        const shelter = data.find(s => s.id === shelterId);
+        if (!shelter) return;
+        map.flyTo([shelter.lat, shelter.lon], 15);
+        shelterMarkers[shelter.id].openPopup();
+    }
+
+    // --- UTILS & ADMIN PANEL ---
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+     function setStaticTime() {
+        const timeElement = document.getElementById('current-time');
+        const now = new Date();
+        timeElement.textContent = now.toLocaleString('en-IN', { dateStyle: 'full', timeStyle: 'short'});
+     }
+    
+    // --- UPDATED: Real-Time User Location ---
+    function locateUser() {
+        const userIcon = L.divIcon({
+            html: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0ea5e9" width="36px" height="36px"><path d="M12 2c-4.418 0-8 3.582-8 8 0 4.418 8 12 8 12s8-7.582 8-12c0-4.418-3.582-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" stroke="white" stroke-width="1.5" /></svg>,
+            className: '',
+            iconSize: [36, 36],
+            iconAnchor: [18, 36]
+        });
+
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(
+                (position) => { // Success Callback
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const userLatLng = L.latLng(lat, lon);
+
+                    if (userMarker) {
+                        // Marker already exists, just update its position
+                        userMarker.setLatLng(userLatLng);
+                        userMarker.setPopupContent(Your Location<br>Accuracy: ${Math.round(position.coords.accuracy)}m);
+                    } else {
+                        // Create the marker for the first time
+                        userMarker = L.marker(userLatLng, { icon: userIcon }).addTo(map)
+                            .bindPopup(Your Location<br>Accuracy: ${Math.round(position.coords.accuracy)}m).openPopup();
+                        // Fly to the user's location only on the first find
+                        map.flyTo(userLatLng, 15);
+                    }
+                },
+                (error) => { // Error Callback
+                    console.error("Geolocation Error:", error);
+                    showToast(⚠ Location Error: ${error.message});
+                    // If location fails, fall back to the default location
+                    if (!userMarker) {
+                         userMarker = L.marker(VELLORE_COORDS, { icon: userIcon }).addTo(map)
+                            .bindPopup("Your Location (Default)").openPopup();
+                         map.setView(VELLORE_COORDS, 13);
+                    }
+                },
+                { // Options
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            showToast("Geolocation is not supported by your browser.");
+            // Fallback for browsers that don't support Geolocation
+            userMarker = L.marker(VELLORE_COORDS, { icon: userIcon }).addTo(map)
+                .bindPopup("Your Location (Default)").openPopup();
+        }
+    }
+
+    function getNasaEventIcon(categoryId) {
+        let svgIcon = '';
+        let color = '#374151'; 
+
+        switch(categoryId) {
+            case 'wildfires':
+                color = '#f97316';
+                svgIcon = <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>;
+                break;
+            case 'severeStorms':
+                color = '#3b82f6';
+                svgIcon = <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0z"></path><path d="M5 12a1 1 0 011-1h12a1 1 0 110 2H6a1 1 0 01-1-1z"></path></svg>;
+                break;
+            case 'volcanoes':
+                color = '#dc2626';
+                svgIcon = <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>;
+                break;
+            default:
+                svgIcon = <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>;
+        }
+        return L.divIcon({
+            html: <div style="background-color: ${color}; border-radius: 50%; padding: 4px; display:flex; justify-content:center; align-items:center; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">${svgIcon}</div>,
+            className: '',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+    }
+
+    function getMagnitudeColor(mag, forMap = false) {
+        if (mag >= 5.5) return forMap ? '#ef4444' : 'mag-high';
+        if (mag >= 4.0) return forMap ? '#f59e0b' : 'mag-medium';
+        return forMap ? '#22c55e' : 'mag-low';
+    }
+
+    function getStatusColor(status) {
+        if (status === 'available') return '#4ade80';
+        if (status === 'nearing_capacity') return '#facc15';
+        if (status === 'full') return '#f87171';
+        return '#9ca3af';
+    }
+    
+    function updateStatusBanner(text, level) {
+        const banner = document.getElementById('status-banner');
+        banner.textContent = text;
+        banner.className = 'mt-2 p-2 rounded-lg text-center font-semibold ';
+        if (level === 'red') banner.classList.add('bg-red-600', 'text-white');
+        else if (level === 'yellow') banner.classList.add('bg-yellow-500', 'text-black');
+        else banner.classList.add('bg-green-600', 'text-white');
+    }
+
+    function handleTitleClick() {
+        clearTimeout(clickTimer); clickCounter++;
+        if (clickCounter === 5) { toggleAdminPanel(true); clickCounter = 0; }
+        clickTimer = setTimeout(() => { clickCounter = 0; }, 1000);
+    }
+
+    function toggleAdminPanel(show) {
+        document.getElementById('admin-panel').classList.toggle('hidden', !show);
+    }
+
+    function populateAdminPanel(shelters) {
+        const container = document.getElementById('admin-shelter-list');
+        container.innerHTML = '';
+        if (shelters.length === 0) {
+            container.innerHTML = <p class="text-gray-500">No local shelters to manage.</p>;
+            return;
+        }
+        shelters.forEach(shelter => {
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <span class="font-semibold">${shelter.name}</span>
+                <select id="admin-${shelter.id}" class="border p-1 rounded w-full mt-1">
+                    <option value="available" ${shelter.status === 'available' ? 'selected' : ''}>Available</option>
+                    <option value="nearing_capacity" ${shelter.status === 'nearing_capacity' ? 'selected' : ''}>Nearing Capacity</option>
+                    <option value="full" ${shelter.status === 'full' ? 'selected' : ''}>Full</option>
+                </select>
+            `;
+            container.appendChild(div);
+            document.getElementById(admin-${shelter.id}).addEventListener('change', (e) => updateShelterStatus(shelter.id, e.target.value));
+        });
+    }
+    
+    function updateShelterStatus(shelterId, newStatus) {
+        let data = JSON.parse(localStorage.getItem('velloreShelterData') || '[]');
+        const shelterIndex = data.findIndex(s => s.id === shelterId);
+        if (shelterIndex !== -1) {
+            data[shelterIndex].status = newStatus;
+            localStorage.setItem('velloreShelterData', JSON.stringify(data));
+            updateShelterUI(data);
+        }
+    }
+</script>
+
+</body>
 </html>

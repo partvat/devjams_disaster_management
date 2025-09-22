@@ -47,7 +47,11 @@ def get_locations():
     with open(LOCATIONS_FILE, 'r') as f:
         locations = json.load(f)
     return jsonify(locations)
-
+# Run SOS service (for button trigger)
+@app.route('/run-sos', methods=['GET'])
+def run_sos():
+    return jsonify({"message": "SOS service triggered successfully!"})
 if __name__ == '__main__':
     app.run(debug=True)
+    
 

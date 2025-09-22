@@ -1,27 +1,32 @@
 [
   {
     "rank": 1,
-    "latitude": -33.0615,
-    "longitude": -59.2301
+    "latitude": -32.8722,
+    "longitude": -59.2198,
+    "risk_score": 1.0
   },
   {
     "rank": 2,
-    "latitude": 51.7531,
-    "longitude": 120.8185
+    "latitude": 52.8442,
+    "longitude": 120.092,
+    "risk_score": 1.5
   },
   {
     "rank": 3,
-    "latitude": 42.4318,
-    "longitude": -108.1565
+    "latitude": 41.5486,
+    "longitude": -107.8662,
+    "risk_score": 1.5
   },
   {
     "rank": 4,
-    "latitude": -7.444,
-    "longitude": 23.4404
+    "latitude": -7.9185,
+    "longitude": 23.5598,
+    "risk_score": 1.5
   },
   {
     "rank": 5,
-    "latitude": -25.1791,
-    "longitude": 130.7849
+    "latitude": -24.8184,
+    "longitude": 130.873,
+    "risk_score": 1.0
   }
 ]
